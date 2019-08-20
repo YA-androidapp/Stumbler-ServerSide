@@ -10,7 +10,9 @@ from restapi.database import db, init_db
 import io
 
 
-URL_PREFIX = ''
+URL_PREFIX = '/v1'
+URL_PREFIX_USER = URL_PREFIX + '/user'
+URL_PREFIX_LOCATION = URL_PREFIX + '/location'
 
 
 def create_app():
@@ -23,8 +25,8 @@ def create_app():
 
 app = create_app()
 
-@app.route(URL_PREFIX+'/', methods=['POST'])
-def post():
+@app.route(URL_PREFIX_USER+'/', methods=['POST'])
+def user_post():
     global app, db
 
     # if request.method == 'POST':
@@ -48,8 +50,8 @@ def post():
         return jsonify({'r': 'Created'}), 201
 
 
-@app.route(URL_PREFIX+'/<string:id>', methods=['GET'])
-def get(id):
+@app.route(URL_PREFIX_USER+'/<string:id>', methods=['GET'])
+def user_get(id):
     global app, db
 
     # if request.method == 'GET':
@@ -68,8 +70,8 @@ def get(id):
         return jsonify(r), 200
 
 
-@app.route(URL_PREFIX+'/<string:id>', methods=['PUT'])
-def put(id):
+@app.route(URL_PREFIX_USER+'/<string:id>', methods=['PUT'])
+def user_put(id):
     global app, db
 
     # if request.method == 'PUT':
@@ -93,8 +95,8 @@ def put(id):
         return jsonify({'r': 'PUT success', 'id': id, 'name': name, 'role': role}), 204
 
 
-@app.route(URL_PREFIX+'/<string:id>', methods=['DELETE'])
-def delete(id):
+@app.route(URL_PREFIX_USER+'/<string:id>', methods=['DELETE'])
+def user_delete(id):
     global app, db
 
     # if request.method == 'DELETE':
@@ -108,13 +110,30 @@ def delete(id):
         return jsonify({'r': 'DELETE success'}), 200
 
 
-@app.route(URL_PREFIX+'/', methods=['GET'])
-def get_all():
+@app.route(URL_PREFIX_USER+'/', methods=['GET'])
+def user_get_all():
     global app, db
 
     d = {'r': 'GET success'}
     d['data'] = [{'id': i.id, 'name': i.name, 'role': i.role} for i in User.query.all()]
     return jsonify(d), 200
+
+
+@app.route(URL_PREFIX+'/init', methods=['GET'])
+def init():
+    global app, db
+
+    # 初期化
+    typenames = ['gps', 'wifi', 'bluetooth', 'geomagnetism']
+    for name in typenames:
+        try:
+            user = ObservationType(name)
+            db.session.add(user)
+            db.session.commit()
+        except:
+            pass
+
+    return jsonify({'r': 'GET success'}), 200
 
 
 @app.errorhandler(404)

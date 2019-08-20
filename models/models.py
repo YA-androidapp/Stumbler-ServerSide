@@ -20,6 +20,7 @@ class ObservedLocation(db.Model):
     name = db.Column(db.String(80), unique=False)
     lat = db.Column(db.Float, unique=False)
     lon = db.Column(db.Float, unique=False)
+    observed_value = db.Column(db.String(800), unique=False) # TODO
     observation_type = db.Column(db.Integer, db.ForeignKey('observationtypes.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
