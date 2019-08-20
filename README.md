@@ -30,13 +30,21 @@ $ psql -h localhost -p 5432 -U postgres -d postgres
 > GRANT ALL ON DATABASE dbsss TO usersss ;
 
 $ psql -h localhost -p 5432 -U postgres -d postgres
-> SELECT * FROM pg_database;
+# > ALTER SCHEMA public OWNER TO usersss;
 
 $ psql -h localhost -p 5432 -U usersss -d postgres
 > SELECT * FROM pg_database;
+
+
+# 既存のテーブルがある場合(データベース名を間違えないように)
+$ rm -rf ./migrations
+
+$ psql -h localhost -p 5432 -U usersss -d dbsss
+> drop schema public cascade;
+> create schema public;
 ```
 
-## データベースのマイグレーションとサーバの起動
+## データベースのマイグレーション
 
 ```sh
 $ FLASK_APP=run.py flask db init # migrationsフォルダ、ファイルを作成
@@ -53,7 +61,7 @@ $ py -m flask db migrate
 $ py -m flask db upgrade
 ```
 
-## データベースのマイグレーションとサーバの起動
+## サーバの起動
 
 ```sh
 $ python run.py
