@@ -25,29 +25,21 @@ def create_app():
 
 app = create_app()
 
-@app.route(URL_PREFIX_USER+'/', methods=['POST'])
+@app.route(URL_PREFIX_USER, methods=['POST'])
 def user_post():
     global app, db
 
     # if request.method == 'POST':
     data = request.get_json()
-    id = '' if not data['id'] else data['id']
     print('data: {}'.format(data))
-    print('id: {}'.format(id))
+    name = '#NAME#' if not data['name'] else data['name']
+    role = 1 if not data['role'] or data['role'].isnumeric() == False else data['role']
 
-    if id != '':
-        user = User.query.get(id)
-        if isinstance(user, type(User)):
-            return jsonify({'r': 'Conflict', 'id': id}), 409
+    user = User(name, role, None)
+    db.session.add(user)
+    db.session.commit()
 
-        name = '#NAME#' if not data['name'] else data['name']
-        role = '#ROLE#' if not data['role'] else data['role']
-
-        user = User(name, role)
-        db.session.add(user)
-        db.session.commit()
-
-        return jsonify({'r': 'Created'}), 201
+    return jsonify({'r': 'Created'}), 201
 
 
 @app.route(URL_PREFIX_USER+'/<string:id>', methods=['GET'])
@@ -110,30 +102,13 @@ def user_delete(id):
         return jsonify({'r': 'DELETE success'}), 200
 
 
-@app.route(URL_PREFIX_USER+'/', methods=['GET'])
+@app.route(URL_PREFIX_USER, methods=['GET'])
 def user_get_all():
     global app, db
 
     d = {'r': 'GET success'}
     d['data'] = [{'id': i.id, 'name': i.name, 'role': i.role} for i in User.query.all()]
     return jsonify(d), 200
-
-
-@app.route(URL_PREFIX+'/init', methods=['GET'])
-def init():
-    global app, db
-
-    # 初期化
-    typenames = ['gps', 'wifi', 'bluetooth', 'geomagnetism']
-    for name in typenames:
-        try:
-            user = ObservationType(name)
-            db.session.add(user)
-            db.session.commit()
-        except:
-            pass
-
-    return jsonify({'r': 'GET success'}), 200
 
 
 @app.errorhandler(404)

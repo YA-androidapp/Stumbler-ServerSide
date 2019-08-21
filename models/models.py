@@ -2,38 +2,29 @@ from datetime import datetime
 from restapi.database import db
 
 
-class ObservationType(db.Model):
-    __tablename__ = 'observationtypes'
+class ObservedWifi(db.Model):
+    __tablename__ = 'observedwifis'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=False)
-
-    def __init__(self, name,):
-        self.name = name
-
-    def __repr__(self):
-        return '{{"class": "{}", "id": "{}", "name": "{}"}}'.format(__class__.__name__, self.id, self.name)
-
-
-class ObservedLocation(db.Model):
-    __tablename__ = 'observedlocations'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=False)
+    bssid = db.Column(db.String(80), unique=False)
+    ssid = db.Column(db.String(80), unique=False)
     lat = db.Column(db.Float, unique=False)
     lon = db.Column(db.Float, unique=False)
-    observed_value = db.Column(db.String(800), unique=False) # TODO
-    observation_type = db.Column(db.Integer, db.ForeignKey('observationtypes.id'), nullable=False)
+    rssi = db.Column(db.String(800), unique=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), nullable=False)
 
-    def __init__(self, name, lat, lon, observation_type, user_id):
-        self.name = name
+    def __init__(self, bssid, ssid, lat, lon, rssi, user_id, location_id):
+        self.bssid = bssid
+        self.ssid = ssid
         self.lat = lat
         self.lon = lon
-        self.observation_type = observation_type
+        self.rssi = rssi
         self.user_id = user_id
+        self.location_id = location_id
 
     def __repr__(self):
-        return '{{"class": "{}", "id": "{}", "name": "{}", "lat": "{}", "lon": "{}", "observation_type": "{}", "user_id": "{}"}}'.format(
-            __class__.__name__, self.id, self.name, self.lat, self.lon, self.observation_type, self.user_id)
+        return '{{"class": "{}", "id": "{}", "bssid": "{}", "ssid": "{}", "lat": "{}", "lon": "{}", "rssi": "{}", "user_id": "{}", "location_id": "{}"}}'.format(
+            __class__.__name__, self.id, self.name, self.lat, self.lon, self.rssi, self.user_id, self.location_id)
 
 
 class Location(db.Model):
@@ -42,17 +33,17 @@ class Location(db.Model):
     name = db.Column(db.String(80), unique=False)
     lat = db.Column(db.Float, unique=False)
     lon = db.Column(db.Float, unique=False)
-    observed_locations = db.relationship('ObservedLocation', backref='locations', lazy=True)
+    observed_wifis = db.relationship('ObservedWifi', backref='locations', lazy=True)
 
-    def __init__(self, name, lat, lon, observed_locations):
+    def __init__(self, name, lat, lon, observed_wifis):
         self.name = name
         self.lat = lat
         self.lon = lon
-        self.observed_locations = observed_locations
+        self.observed_wifis = observed_wifis
 
     def __repr__(self):
-        return '{{"class": "{}", "id": "{}", "name": "{}", "lat": "{}", "lon": "{}", "observed_locations": "{}"}}'.format(
-            __class__.__name__, self.id, self.name, self.lat, self.lon, self.observed_locations)
+        return '{{"class": "{}", "id": "{}", "name": "{}", "lat": "{}", "lon": "{}", "observed_wifis": "{}"}}'.format(
+            __class__.__name__, self.id, self.name, self.lat, self.lon, self.observed_wifis)
 
 
 class User(db.Model):
@@ -60,13 +51,13 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=False)
     role = db.Column(db.Integer, unique=False)
-    observed_locations = db.relationship('ObservedLocation', backref='users', lazy=True)
+    observed_wifis = db.relationship('ObservedWifi', backref='users', lazy=True)
 
-    def __init__(self, name, role, observed_locations):
+    def __init__(self, name, role, observed_wifis):
         self.name = name
         self.role = role
-        self.observed_locations = observed_locations
+        self.observed_wifis = observed_wifis
 
     def __repr__(self):
-        return '{{"class": "{}", "id": "{}", "name": "{}", "role": "{}", "observed_locations": "{}"}}'.format(
-            __class__.__name__, self.id, self.name, self.role, self.observed_locations)
+        return '{{"class": "{}", "id": "{}", "name": "{}", "role": "{}", "observed_wifis": "{}"}}'.format(
+            __class__.__name__, self.id, self.name, self.role, self.observed_wifis)
