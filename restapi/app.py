@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, redirect, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from models import User
@@ -24,6 +24,17 @@ def create_app():
     return app
 
 app = create_app()
+
+
+@app.route('/')
+def root():
+    return redirect(url_for('user_get_all'))
+
+
+@app.route(URL_PREFIX)
+def v1():
+    return redirect(url_for('user_get_all'))
+
 
 @app.route(URL_PREFIX_USER, methods=['POST'])
 def user_post():
