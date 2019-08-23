@@ -55,10 +55,8 @@ $ flask db upgrade # migrationを実行
 
 ```powershell
 # Windows(PowerShell)の場合
-$ $env:FLASK_APP="run.py"
-$ py -m flask db init
-$ py -m flask db migrate
-$ py -m flask db upgrade
+$ sssenv\Scripts\activate ; $env:FLASK_APP="run.py" ; py -m flask db init ; py -m flask db migrate ; py -m flask db upgrade
+
 ```
 
 ## サーバの起動

@@ -1,4 +1,5 @@
 .vscode/
+migrations/
 sssenv/
 
 # Byte-compiled / optimized / DLL files

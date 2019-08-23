@@ -32,10 +32,11 @@ def user_post():
     # if request.method == 'POST':
     data = request.get_json()
     print('data: {}'.format(data))
+    print('role: {}'.format(data['role']))
     name = '#NAME#' if not data['name'] else data['name']
-    role = 1 if not data['role'] or data['role'].isnumeric() == False else data['role']
+    role = 1 if data['role'] is None or str(data['role']).isnumeric() == False else int(data['role'])
 
-    user = User(name, role, None)
+    user = User(name, role, [])
     db.session.add(user)
     db.session.commit()
 
