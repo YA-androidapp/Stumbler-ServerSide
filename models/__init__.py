@@ -1,6 +1,6 @@
-from .models import User
+from .models import User, Location, ObservedWifi
 
 
 __all__ = [
-    User,
+    User, Location, ObservedWifi
 ]

@@ -5,7 +5,7 @@
 from flask import Flask, jsonify, redirect, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from models import User
+from models import User, Location, ObservedWifi
 from restapi.database import db, init_db
 import io
 
@@ -13,6 +13,14 @@ import io
 URL_PREFIX = '/v1'
 URL_PREFIX_USER = URL_PREFIX + '/user'
 URL_PREFIX_LOCATION = URL_PREFIX + '/location'
+
+
+def isfloat(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
 
 
 def create_app():
@@ -120,6 +128,57 @@ def user_get_all():
 
     d = {'r': 'GET success'}
     d['data'] = [{'id': i.id, 'name': i.name, 'role': i.role} for i in User.query.all()]
+    return jsonify(d), 200
+
+
+
+@app.route(URL_PREFIX_LOCATION, methods=['POST'])
+def location_post():
+    global app, db
+
+    data = request.get_json()
+    name = '#NAME#' if not data['name'] else data['name']
+    print('lat: {}'.format(data['lat']))
+    lat = 1 if data['lat'] is None or isfloat(data['lat']) == False else float(data['lat'])
+    lon = 1 if data['lon'] is None or isfloat(data['lon']) == False else float(data['lon'])
+
+    location = Location(name, lat, lon, [])
+    db.session.add(location)
+    db.session.commit()
+
+    return jsonify({'r': 'Created'}), 201
+
+
+@app.route(URL_PREFIX_LOCATION+'/<string:id>', methods=['GET'])
+def location_get(id):
+    global app, db
+
+    if id != '':
+        location = Location.query.get(id)
+        if isinstance(location, type(None)):
+            return jsonify({'r': 'GET fail, no id found', 'id': id}), 403
+
+        r = {
+            'r': 'GET success',
+            'id': location.id,
+            'name': location.name,
+            'lat': location.lat,
+            'lon': location.lon,
+            'observed_wifis': location.observed_wifis
+        }
+
+        return jsonify(r), 200
+
+
+# TODO
+
+
+@app.route(URL_PREFIX_LOCATION, methods=['GET'])
+def location_get_all():
+    global app, db
+
+    d = {'r': 'GET success'}
+    d['data'] = [{'id': i.id, 'name': i.name, 'lat': i.lat, 'lon': i.lon, 'observed_wifis': i.observed_wifis} for i in Location.query.all()]
     return jsonify(d), 200
 
 
