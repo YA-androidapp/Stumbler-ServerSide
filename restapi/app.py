@@ -157,9 +157,9 @@ def location_put(id):
         if 'name' in data:
             location.name = '#NAME#' if data['name'] is None or str(data['name']) == '' else str(data['name'])
         if 'lat' in data:
-            location.lat = 180 if data['lat'] is None or isfloat(data['lat']) == False else int(float['lat'])
+            location.lat = 180 if data['lat'] is None or isfloat(data['lat']) == False else float(data['lat'])
         if 'lon' in data:
-            location.lon = 180 if data['lon'] is None or isfloat(data['lon']) == False else int(float['lon'])
+            location.lon = 90 if data['lon'] is None or isfloat(data['lon']) == False else float(data['lon'])
         db.session.commit()
         return jsonify({'r': 'PUT success', 'id': location.id, 'name': location.name, 'lat': location.lat, 'lon': location.lon}), 204
 
