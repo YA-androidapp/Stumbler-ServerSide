@@ -48,12 +48,9 @@ def v1():
 def user_post():
     global app, db
 
-    # if request.method == 'POST':
     data = request.get_json()
-    print('data: {}'.format(data))
-    print('role: {}'.format(data['role']))
-    name = '#NAME#' if not data['name'] else data['name']
-    role = 1 if data['role'] is None or str(data['role']).isnumeric() == False else int(data['role'])
+    name = '#NAME#' if ('name' not in data) or data['name'] is None or str(data['name']) == '' else str(data['name'])
+    role = 1 if ('role' not in data) or data['role'] is None or str(data['role']).isnumeric() == False else int(data['role'])
 
     user = User(name, role, [])
     db.session.add(user)
@@ -66,52 +63,37 @@ def user_post():
 def user_get(id):
     global app, db
 
-    # if request.method == 'GET':
     if id != '':
         user = User.query.get(id)
         if isinstance(user, type(None)):
             return jsonify({'r': 'GET fail, no id found', 'id': id}), 403
 
-        r = {
-            'r': 'GET success',
-            'id': user.id,
-            'name': user.name,
-            'role': user.role
-        }
-
-        return jsonify(r), 200
+        return jsonify({'r': 'GET success', 'id': user.id, 'name': user.name, 'role': user.role}), 200
 
 
 @app.route(URL_PREFIX_USER+'/<string:id>', methods=['PUT'])
 def user_put(id):
     global app, db
 
-    # if request.method == 'PUT':
     if id != '':
         user = User.query.get(id)
         print('user: {}'.format(user))
         if isinstance(user, type(None)):
-            return post()
+            return user_post()
 
         data = request.get_json()
-        # id = '#ID#' if not data['id'] else data['id']
-        name = '#NAME#' if not data['name'] else data['name']
-        role = '#ROLE#' if not data['role'] else data['role']
-
-        # user.id = id
-        user.name = name
-        user.role = role
-
-        # db.session.add(user)
+        if 'name' in data:
+            user.name = '#NAME#' if data['name'] is None or str(data['name']) == '' else str(data['name'])
+        if 'role' in data:
+            user.role = '#ROLE#' if data['role'] is None or str(data['role']).isnumeric() == False else int(data['role'])
         db.session.commit()
-        return jsonify({'r': 'PUT success', 'id': id, 'name': name, 'role': role}), 204
+        return jsonify({'r': 'PUT success', 'id': user.id, 'name': user.name, 'role': user.role}), 204
 
 
 @app.route(URL_PREFIX_USER+'/<string:id>', methods=['DELETE'])
 def user_delete(id):
     global app, db
 
-    # if request.method == 'DELETE':
     if id != '':
         user = User.query.get(id)
         if isinstance(user, type(None)):
@@ -126,6 +108,7 @@ def user_delete(id):
 def user_get_all():
     global app, db
 
+    # if request.method == 'GET':
     d = {'r': 'GET success'}
     d['data'] = [{'id': i.id, 'name': i.name, 'role': i.role} for i in User.query.all()]
     return jsonify(d), 200
@@ -137,10 +120,9 @@ def location_post():
     global app, db
 
     data = request.get_json()
-    name = '#NAME#' if not data['name'] else data['name']
-    print('lat: {}'.format(data['lat']))
-    lat = 1 if data['lat'] is None or isfloat(data['lat']) == False else float(data['lat'])
-    lon = 1 if data['lon'] is None or isfloat(data['lon']) == False else float(data['lon'])
+    name = '#' if ('name' not in data) or data['name'] is None or str(data['name']) == '' else str(data['name'])
+    lat = 180 if ('lat' not in data) or data['lat'] is None or isfloat(data['lat']) == False else float(data['lat'])
+    lon = 90 if ('lon' not in data) or data['lon'] is None or isfloat(data['lon']) == False else float(data['lon'])
 
     location = Location(name, lat, lon, [])
     db.session.add(location)
@@ -158,19 +140,42 @@ def location_get(id):
         if isinstance(location, type(None)):
             return jsonify({'r': 'GET fail, no id found', 'id': id}), 403
 
-        r = {
-            'r': 'GET success',
-            'id': location.id,
-            'name': location.name,
-            'lat': location.lat,
-            'lon': location.lon,
-            'observed_wifis': location.observed_wifis
-        }
-
-        return jsonify(r), 200
+        return jsonify({'r': 'GET success', 'id': location.id, 'name': location.name, 'lat': location.lat, 'lon': location.lon, 'observed_wifis': location.observed_wifis}), 200
 
 
-# TODO
+@app.route(URL_PREFIX_LOCATION+'/<string:id>', methods=['PUT'])
+def location_put(id):
+    global app, db
+
+    if id != '':
+        location = Location.query.get(id)
+        print('location: {}'.format(location))
+        if isinstance(location, type(None)):
+            return location_post()
+
+        data = request.get_json()
+        if 'name' in data:
+            location.name = '#NAME#' if data['name'] is None or str(data['name']) == '' else str(data['name'])
+        if 'lat' in data:
+            location.lat = 180 if data['lat'] is None or isfloat(data['lat']) == False else int(float['lat'])
+        if 'lon' in data:
+            location.lon = 180 if data['lon'] is None or isfloat(data['lon']) == False else int(float['lon'])
+        db.session.commit()
+        return jsonify({'r': 'PUT success', 'id': location.id, 'name': location.name, 'lat': location.lat, 'lon': location.lon}), 204
+
+
+@app.route(URL_PREFIX_LOCATION+'/<string:id>', methods=['DELETE'])
+def location_delete(id):
+    global app, db
+
+    if id != '':
+        location = Location.query.get(id)
+        if isinstance(location, type(None)):
+            return jsonify({'r': 'DELETE fail, no id found', 'id': id}), 403
+
+        db.session.delete(location)
+        db.session.commit()
+        return jsonify({'r': 'DELETE success'}), 200
 
 
 @app.route(URL_PREFIX_LOCATION, methods=['GET'])
